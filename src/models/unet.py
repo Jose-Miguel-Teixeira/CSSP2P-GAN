@@ -25,7 +25,6 @@ from models.resnet import (
     BasicBlock,
     Bottleneck,
 )
-from models.attention import CrossAttentionBlock
 
 ###############################################################################
 # UNet Modules
@@ -78,8 +77,6 @@ class UpconvBlock(nn.Module):
             out_channels: int,
             norm_layer: torch.nn = nn.BatchNorm2d,
             use_bilinear: bool = True,
-            apply_cross_attention: bool = False,
-            embed_num_positions: int = None,
             **kwargs
     ) -> None:
         super(UpconvBlock, self).__init__()
@@ -88,12 +85,6 @@ class UpconvBlock(nn.Module):
         self.out_channels = out_channels
         self.norm_layer = norm_layer
         self.use_bilinear = use_bilinear
-        self.apply_cross_attention = apply_cross_attention
-
-        if apply_cross_attention and embed_num_positions is None:
-            raise ValueError(
-                "'embed_num_positions' must be provided when 'apply_cross_attention' is True."
-                )
 
         if not isinstance(norm_layer, type) or not issubclass(norm_layer, nn.Module):
             raise ValueError("'norm_layer' must be an instance of torch.nn.")
@@ -119,18 +110,6 @@ class UpconvBlock(nn.Module):
                 stride=2,
                 )
 
-        if apply_cross_attention:
-            self.cross_attn = CrossAttentionBlock(
-                channels=in_channels // 2,
-                embed_dim=in_channels,
-                embed_num_positions=embed_num_positions,
-                num_heads=in_channels // 128,
-                dropout=kwargs.get('dropout', 0.1),
-                use_learnable_positional_embeddings=kwargs.get('use_learnable_positional_embeddings', False),
-                ffn_hidden_dim=in_channels * 2,  # ¿ 'in_channels' or 'in_channels * 2' ?
-                attention_dropout=kwargs.get('attention_dropout', 0.0),
-            )
-
         self.double_conv = DoubleConvBlock(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -143,33 +122,6 @@ class UpconvBlock(nn.Module):
             x2: torch.Tensor,  # Skip Connection
     ) -> torch.Tensor:
         x1 = self.up(x1)
-
-        if self.apply_cross_attention:
-            # * Construct Mask
-            # The key_padding_mask is designed to mark positions in the key
-            # that should be ignored during the attention computation, which
-            # in this case corresponds to the padding mask.
-
-            # key_padding_mask = torch.zeros_like(x1, dtype=torch.bool)
-            # key_padding_mask[:, :, :diffY // 2, :] = True
-            # key_padding_mask[:, :, -diffY + diffY // 2:, :] = True
-            # key_padding_mask[:, :, :, :diffX // 2] = True
-            # key_padding_mask[:, :, :, -diffX + diffX // 2:] = True
-
-            # ** Reshape Mask
-            # B, _, W, H = key_padding_mask.shape
-            # key_padding_mask = key_padding_mask[:, 0, :, :].reshape(B, H * W)  # [B, H * W]
-
-            # ! In the present case the key_padding_mask is not needed as we
-            # ! don't have padding.
-
-            key_padding_mask = None
-            x2 = self.cross_attn(
-                query=x1,
-                key=x2,
-                key_padding_mask=key_padding_mask,
-                )
-
         x = torch.cat([x2, x1], dim=1)
 
         return self.double_conv(x)
@@ -399,14 +351,12 @@ class ResNetDecoder(nn.Module):
             backbone: Literal["resnet34", "resnet50", "resnet101"],
             norm_layer: Literal['batch', 'instance'] = 'batch',
             use_bilinear: bool = True,
-            attention_layers: List[int] = None,
             **kwargs
     ) -> None:
         super(ResNetDecoder, self).__init__()
 
         self.input_size = input_size
         self.output_channels = output_channels
-        self.attention_layers = attention_layers
         self.backbone = backbone
         self.use_bilinear = use_bilinear
 
@@ -453,31 +403,15 @@ class ResNetDecoder(nn.Module):
                     )
                 )
 
-            if attention_layers is not None and (i - 1) in attention_layers:
-                embed_num_positions = int(
-                    (input_size[0] // 2 ** (len(hidden_sizes) - (i + 1))) ** 2
+            self.layers.append(
+                UpconvBlock(
+                    in_channels=hidden_sizes[i - 1],
+                    out_channels=hidden_sizes[i],
+                    norm_layer=self.norm_layer,
+                    use_bilinear=self.use_bilinear,
                 )
-                self.layers.append(
-                    UpconvBlock(
-                        in_channels=hidden_sizes[i - 1],
-                        out_channels=hidden_sizes[i],
-                        norm_layer=self.norm_layer,
-                        use_bilinear=self.use_bilinear,
-                        apply_cross_attention=True,
-                        embed_num_positions=embed_num_positions,
-                        **kwargs
-                    )
-                )
-            else:
-                self.layers.append(
-                    UpconvBlock(
-                        in_channels=hidden_sizes[i - 1],
-                        out_channels=hidden_sizes[i],
-                        norm_layer=self.norm_layer,
-                        use_bilinear=self.use_bilinear,
-                        apply_cross_attention=False,
-                    )
-                )
+            )
+
         self.layers.append(
             OutConvBlock(
                 hidden_sizes[-1],
@@ -530,13 +464,6 @@ class ResUNet(nn.Module):
                 "resnet50",
                 "resnet101"
                 ] = "resnet50",
-            attention_mechanism: Optional[
-                List[
-                    Literal[
-                        'cross-attention'
-                        ]
-                    ]
-                ] = None,
             **kwargs
             ) -> None:
         super(ResUNet, self).__init__()
@@ -563,32 +490,6 @@ class ResUNet(nn.Module):
                     "Choose from 'resnet18' 'resnet34', 'resnet50', 'resnet101'."
                     )
 
-        if attention_mechanism is not None:
-            if isinstance(attention_mechanism, str):
-                attention_mechanism = [attention_mechanism]
-            elif not isinstance(attention_mechanism, list):
-                raise ValueError(
-                    "'attention_mechanism' must be a list of strings."
-                )
-            valid_attention_mechanisms = ['cross-attention']
-            for mechanism in attention_mechanism:
-                if mechanism not in valid_attention_mechanisms:
-                    raise ValueError(
-                        f"Invalid Attention Mechanism: {mechanism}! "
-                        f"Choose from {valid_attention_mechanisms}."
-                        )
-                if mechanism == 'cross-attention':
-                    attention_layers = kwargs.pop('attention_layers', None)
-                    if attention_layers is None:
-                        valid_attention_layers = [i for i in range(len(hidden_sizes))]
-                        raise ValueError(
-                            "'attention_layers' must be provided for 'cross-attention'."
-                            f"Choose {valid_attention_layers} or a subset of it."
-                            )
-        else:
-            kwargs.pop('attention_layers', None)
-            attention_layers = None
-
         self.encoder = ResNetEncoder(
             pretrained=True,
             norm_layer=norm_layer,
@@ -603,7 +504,6 @@ class ResUNet(nn.Module):
             norm_layer=norm_layer,
             use_bilinear=use_bilinear,
             backbone=backbone,
-            attention_layers=attention_layers,
             **kwargs
             )
 
@@ -752,11 +652,6 @@ if __name__ == "__main__":
         norm_layer='instance',
         backbone='resnet18',
         use_bilinear=True,
-        attention_mechanism='cross-attention',
-        attention_layers=[0, 1],
-        use_learnable_positional_embeddings=False,
-        dropout=0.2,
-        attention_dropout=0.1,
     )
 
     # * Print Model Summary

@@ -59,7 +59,7 @@ train:
   weight_decay: 1e-5
 
   # Dataloader
-  batch_size: 8
+  batch_size: 4
   num_workers: 16
   prefetch_factor: 4
 
@@ -114,11 +114,6 @@ generator:
   norm_layer: instance
   use_bilinear: true
   backbone: resnet50
-  attention_mechanism: null
-  attention_layers: [0, 1]
-  use_learnable_positional_embeddings: false
-  dropout: 0.2
-  attention_dropout: 0.1
   compilation:
     enabled: true
     fullgraph: true
