@@ -47,7 +47,10 @@ unzip HER2match_tiles.zip -d HER2match_tiles
 ### Train Models
 - BCE GAN
 ```bash
-python3 train_gan.py --config-name BCEGAN_config.yaml
+python3 train_gan.py \
+    --config-name BCEGAN_config.yaml
+    ++discriminator.input_nc=3 \
+    ++train.condition_discriminator=false
 ```
 
 - cBCE GAN
@@ -89,4 +92,4 @@ If you use this code for your research, please cite our paper **Leveraging Adver
 ## Acknowledgments
 This project uses code from the [AdaptiveSupervisedPatchNCE repository](https://github.com/lifangda01/AdaptiveSupervisedPatchNCE) by Fangda Li (2023), which is licensed under a custom license. The following files contain a copy or a modified version of the original code:
 - models/networks.py
-- 
+- models/discriminator.py
