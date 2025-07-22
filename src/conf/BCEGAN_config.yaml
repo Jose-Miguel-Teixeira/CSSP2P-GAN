@@ -104,7 +104,7 @@ generator:
 
 general:
   experiment_group: Thesis
-  experiment_name: BCEGAN_${now:%Y_%m_%d_%H_%M_%S}
+  experiment_name: cBCEGAN_${now:%Y_%m_%d_%H_%M_%S}
   job_type: train
   log_graph: false
   num_example_images: 3
@@ -127,7 +127,4 @@ general:
 
 hydra:
   run:
-    dir: outputs/BCEGAN/${now:%Y_%m_%d_%H_%M_%S}
-  sweep:
-    dir: outputs/BCEGAN/
-    subdir: ${now:%Y_%m_%d_%H_%M_%S}
+    dir: outputs/cBCEGAN/${now:%Y_%m_%d_%H_%M_%S}

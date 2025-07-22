@@ -840,13 +840,6 @@ class HydraBCEGAN(pl.LightningModule):
             toc = time()
             self.running_training_forward_time += toc - tic
 
-        # # * Clear Memory
-        # del out
-        # gc.collect()
-        # if self.device.type == 'cuda':
-        #     torch.cuda.empty_cache()
-        #     torch.cuda.ipc_collect()
-
         return {
             'discriminator_train_loss': disc_train_loss,
             'generator_train_loss': gen_train_loss
@@ -925,13 +918,6 @@ class HydraBCEGAN(pl.LightningModule):
         if self.cfg.general.profiler is not None:
             toc = time()
             self.running_val_forward_time += toc - tic
-
-        # # * Clear Memory
-        # del out
-        # gc.collect()
-        # if self.device.type == 'cuda':
-        #     torch.cuda.empty_cache()
-        #     torch.cuda.ipc_collect()
 
         return {
             'discriminator_val_loss': disc_val_loss,
@@ -1022,13 +1008,6 @@ class HydraBCEGAN(pl.LightningModule):
                     )
                 )
 
-        # # * Clear Memory
-        # del out
-        # gc.collect()
-        # if self.device.type == 'cuda':
-        #     torch.cuda.empty_cache()
-        #     torch.cuda.ipc_collect()
-
         return {
             'discriminator_test_loss': disc_loss,
             'generator_test_loss': gen_loss
@@ -1115,8 +1094,6 @@ class HydraBCEGAN(pl.LightningModule):
                         f.write(f"{key}: {value:.4f}\n")
 
     def on_train_epoch_end(self) -> None:
-        # ! Stepping the scheduler should be after computing the average losses
-        # TODO: Correct this error
         if 'discriminator' in self.models_to_optimize:
             self.log(
                 'disc_train_stage',

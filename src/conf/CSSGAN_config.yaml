@@ -71,13 +71,6 @@ train:
   start_training_generator_epoch: 0
   start_training_discriminator_epoch: 0
 
-  # SoftAdapt
-  # SoftAdapt:
-  #   history_size: 7
-  #   beta: 2.0
-  #   variants: normalized_weighted_loss
-  #   weights: [2, 1]  # [adversarial_loss, css_loss]
-
   # Metrics
   compute_metrics_on_gpu: true  # If cpu is setted, it will be computed on cpu
 
