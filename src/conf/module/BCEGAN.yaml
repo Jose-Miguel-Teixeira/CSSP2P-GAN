@@ -1,0 +1,2 @@
+_target_: module.GAN_base_module.HydraBCEGAN
+_partial_: true

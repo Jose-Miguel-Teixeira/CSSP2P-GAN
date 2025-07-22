@@ -1,0 +1,12 @@
+_target_: datamodule.stain_dataset.StainDataModule
+_partial_: true
+
+batch_size: ${train.batch_size}
+num_workers: ${train.num_workers}
+pin_memory: true
+shuffle: true
+prefetch_factor: ${train.prefetch_factor}
+max_dataset_size: ${general.max_dataset_size}
+
+# Documentation
+# https://lightning.ai/docs/pytorch/stable/data/datamodule.html

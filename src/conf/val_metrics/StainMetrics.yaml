@@ -1,0 +1,5 @@
+_target_: metrics.stain_metrics.StainMetrics
+# data_range: [0, 1]  # TODO: Needs to be modified to pass a tuple
+lpips_net_type: vgg
+compute_on_cpu: ${train.compute_metrics_on_gpu}
+metrics: [lpips]

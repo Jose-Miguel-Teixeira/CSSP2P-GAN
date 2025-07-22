@@ -1,0 +1,157 @@
+defaults:
+  - _self_
+
+  # Models
+  - generator_model: ResUNet
+  - discriminator_model: NLayerDiscriminator
+
+  # Optimizers
+  - generator_optimizer: AdamW
+  - discriminator_optimizer: AdamW
+
+  # Schedulers
+  - generator_scheduler: ExponentialLR
+  - discriminator_scheduler: ExponentialLR
+
+  # Callbacks
+  - callbacks: null
+
+  # Losses
+  - adversarial_loss: BCEWithLogitsLoss
+
+  # Metrics
+  - train_metrics: null
+  - val_metrics: null
+  - test_metrics: null
+  - predict_metrics: StainMetrics
+
+  # Trainer
+  - trainer: GAN_trainer
+
+  # Data
+  - datamodule: StainDataModule
+
+  # Module
+  - module: CSSP2PGAN
+
+  # Transforms
+  - HE_transforms: GAN_predict_transforms
+  - IHC_transforms: GAN_predict_transforms
+  - HE_augmentations: null
+  - IHC_augmentations: null
+
+
+  # Logger
+  - logger: null
+
+  # Wrapper
+  - wrapper: PyramidLoss  # [PyramidLoss, PatchLoss, null]
+
+  # Generator Loss
+  - criterion: L1Loss  # [MSELoss]
+
+train:
+  # Resume from checkpoint
+  resume_from_checkpoint: /home/up202006243/stAINs_MICCAI/outputs/GAN/NKI/CSSP2PGAN/CSSP2PGAN/fid_val=3.012e+01_epoch=115.ckpt
+
+  # Optimizer
+  lr: 5e-5
+  weight_decay: 1e-5
+
+  # Dataloader
+  batch_size: 1
+  num_workers: 8
+  prefetch_factor: 2
+
+  # Train
+  accumulate_grad_batches: 1
+  clip_grad_value: null
+  max_epochs: 1
+  min_epochs: 0
+
+  # GAN
+  condition_discriminator: true
+  alternate_training: false
+  train_generator_every_n_epochs: 1
+  train_discriminator_every_n_epochs: 1
+  start_training_generator_epoch: 0
+  start_training_discriminator_epoch: 0
+
+  # SoftAdapt
+  # SoftAdapt:
+  #   history_size: 7
+  #   beta: 0.1
+  #   variants: normalized_weighted_loss
+
+  # Mask
+  Mask:
+    apply_mask: false
+
+    # Gaussian Smoothing
+    kernel_size: 9
+    sigma: 5.0
+
+    # Thresholding
+    blue_thresholds: [-1e-3]
+    blue_weights: [0.05]
+
+    brown_thresholds: [6e-2, 0.3]
+    brown_weights: [0.9, 0.1]  # Positive biomarker DAB staining
+
+  # Metrics
+  compute_metrics_on_gpu: true  # If cpu is setted, it will be computed on cpu
+
+discriminator:
+  input_nc: 6
+  ndf: 64
+  n_layers: 4
+  norm_layer: batch
+  no_antialias: false
+  weight_norm: spectral
+  compilation:
+    enabled: false
+    fullgraph: true
+
+generator:
+  input_size: [512, 512]
+  output_channels: 3
+  encoder_activation: relu
+  final_activation: sigmoid
+  norm_layer: instance
+  use_bilinear: true
+  backbone: resnet50
+  attention_mechanism: null
+  attention_layers: [0, 1]
+  use_learnable_positional_embeddings: false
+  dropout: 0.2
+  attention_dropout: 0.1
+  compilation:
+    enabled: true
+    fullgraph: true
+
+general:
+  experiment_group: Thesis
+  experiment_name: BCEGAN
+  job_type: val
+  log_graph: false
+  num_example_images: 3
+  seed: 42
+  matmul_precision: medium
+  trainer_precision: 32-true
+  deterministic: false
+  benchmarking: true
+  device: gpu
+  verbose: true
+
+  # Debugging
+  log_gradients: false
+  overfit_batches: 0
+  detect_anomaly: false
+  num_sanity_val_steps: 0
+  enable_model_summary: false
+  profiler: null
+  max_dataset_size: 1000000
+
+hydra:
+  run:
+    dir: /home/up202006243/stAINs_MICCAI/outputs/GAN/NKI/CSSP2PGAN/CSSP2PGAN/LPIPS_results

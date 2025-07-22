@@ -189,3 +189,7 @@ wandb/
 # Ignore .err and .out files
 *.err
 *.out
+
+# Ignore Dataset folder
+HER2match_tiles/
+HER2match_tiles.zip

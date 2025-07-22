@@ -1,0 +1,11 @@
+Resize:
+  _target_: torchvision.transforms.v2.RandomCrop
+  size: 512
+
+RandomVerticalFlip:
+  _target_: torchvision.transforms.v2.RandomVerticalFlip
+  p: 0.5
+
+RandomHorizontalFlip:
+  _target_: torchvision.transforms.v2.RandomHorizontalFlip
+  p: 0.5

@@ -1,0 +1,133 @@
+defaults:
+  - _self_
+
+  # Models
+  - generator_model: ResUNet
+  - discriminator_model: NLayerDiscriminator
+
+  # Optimizers
+  - generator_optimizer: AdamW
+  - discriminator_optimizer: AdamW
+
+  # Schedulers
+  - generator_scheduler: ExponentialLR
+  - discriminator_scheduler: ExponentialLR
+
+  # Callbacks
+  - callbacks: GAN_train_callbacks
+
+  # GAN Losse
+  - adversarial_loss: BCEWithLogitsLoss
+
+  # Metrics
+  - train_metrics: null
+  - val_metrics: StainMetrics
+  - test_metrics: null
+  - predict_metrics: null
+
+  # Trainer
+  - trainer: GAN_trainer
+
+  # Data
+  - datamodule: StainDataModule
+
+  # Module
+  - module: BCEGAN
+
+  # Transforms
+  - HE_transforms: GAN_train_transforms
+  - IHC_transforms: GAN_train_transforms
+  - HE_augmentations: GAN_train_augmentations
+  - IHC_augmentations: GAN_train_augmentations
+
+
+  # Logger
+  - logger: WandbLogger  # [TensorBoardLogger, WandbLogger]
+
+train:
+  # Resume from checkpoint
+  resume_from_checkpoint: null
+
+  # Optimizer
+  lr: 5e-5
+  weight_decay: 1e-5
+
+  # Dataloader
+  batch_size: 8
+  num_workers: 16
+  prefetch_factor: 4
+
+  # Train
+  accumulate_grad_batches: 1
+  clip_grad_value: null
+  max_epochs: 200
+  min_epochs: 0
+
+  # GAN
+  condition_discriminator: true
+  alternate_training: false
+  train_generator_every_n_epochs: 1
+  train_discriminator_every_n_epochs: 1
+  start_training_generator_epoch: 0
+  start_training_discriminator_epoch: 0
+
+  # Metrics
+  compute_metrics_on_gpu: true  # If cpu is setted, it will be computed on cpu
+
+discriminator:
+  input_nc: 6
+  ndf: 64
+  n_layers: 4
+  norm_layer: batch
+  no_antialias: false
+  weight_norm: spectral
+  compilation:
+    enabled: false
+    fullgraph: true
+
+generator:
+  input_size: [512, 512]
+  output_channels: 3
+  encoder_activation: relu
+  final_activation: sigmoid
+  norm_layer: instance
+  use_bilinear: true
+  backbone: resnet50
+  attention_mechanism: null
+  attention_layers: [0, 1]
+  use_learnable_positional_embeddings: false
+  dropout: 0.2
+  attention_dropout: 0.1
+  compilation:
+    enabled: true
+    fullgraph: true
+
+general:
+  experiment_group: Thesis
+  experiment_name: BCEGAN_${now:%Y_%m_%d_%H_%M_%S}
+  job_type: train
+  log_graph: false
+  num_example_images: 3
+  seed: 42
+  matmul_precision: medium
+  trainer_precision: bf16-mixed # 32-true
+  deterministic: false
+  benchmarking: true
+  device: gpu
+  verbose: false
+
+  # Debugging
+  log_gradients: false
+  overfit_batches: 0
+  detect_anomaly: false
+  num_sanity_val_steps: 0
+  enable_model_summary: false
+  profiler: null
+  max_dataset_size: 1000000
+
+hydra:
+  run:
+    dir: outputs/BCEGAN/${now:%Y_%m_%d_%H_%M_%S}
+  sweep:
+    dir: outputs/BCEGAN/
+    subdir: ${now:%Y_%m_%d_%H_%M_%S}

@@ -1,0 +1,10 @@
+_target_: pytorch_lightning.Trainer
+max_epochs: ${train.max_epochs}
+min_epochs: ${train.min_epochs}
+
+# Debugging
+overfit_batches: ${general.overfit_batches}
+detect_anomaly: ${general.detect_anomaly}
+num_sanity_val_steps: ${general.num_sanity_val_steps}
+enable_model_summary: ${general.enable_model_summary}
+profiler: ${general.profiler}

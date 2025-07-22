@@ -1,0 +1,25 @@
+# Resize:
+#   _target_: torchvision.transforms.v2.CenterCrop
+#   size: 512
+
+Normalize:
+  _target_: torchvision.transforms.v2.Normalize
+  # General Normalization
+  # mean: [0.5, 0.5, 0.5]
+  # std: [0.5, 0.5, 0.5]
+
+  # NKI Normalization
+  # mean: [
+  #   0.9240511406634692,
+  #   0.518498387358072,
+  #   0.6892638419443589
+  # ]
+  # std: [
+  #   0.03496314901362257,
+  #   0.08512992391981364,
+  #   0.06295950901394759
+  # ]
+
+  # ImageNet Normalization  # * <--
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]

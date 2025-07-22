@@ -1,0 +1,10 @@
+_target_: pytorch_lightning.loggers.WandbLogger
+_partial_: true
+name: ${general.experiment_name}
+group: ${general.experiment_group}
+entity: jmteixeira
+log_model: false
+job_type: ${general.job_type}
+project: CSSP2P-GAN
+# id:
+resume: allow

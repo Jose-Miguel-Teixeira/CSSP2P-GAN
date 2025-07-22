@@ -1,0 +1,13 @@
+_target_: torch.optim.lr_scheduler.CyclicLR
+base_lr: 5e-5
+max_lr: ${train.lr}
+mode: exp_range
+step_size_up: 1
+step_size_down: 2
+gamma: 0.985
+
+# References:
+# - https://pytorch.org/docs/stable/generated/torch.optim.lr_scheduler.CyclicLR.html#torch.optim.lr_scheduler.CyclicLR
+# - https://towardsdatascience.com/adaptive-and-cyclical-learning-rates-using-pytorch-2bf904d18dee
+# - https://vevesta.substack.com/p/cyclical-learning-rate-deep-learning
+# - https://wiki.cloudfactory.com/docs/mp-wiki/scheduler/cycliclr

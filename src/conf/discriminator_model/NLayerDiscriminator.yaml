@@ -1,0 +1,7 @@
+_target_: models.discriminator.NLayerDiscriminator
+input_nc: ${discriminator.input_nc}
+ndf: ${discriminator.ndf}
+n_layers: ${discriminator.n_layers}
+norm_layer: ${discriminator.norm_layer}
+no_antialias: ${discriminator.no_antialias}
+weight_norm: ${discriminator.weight_norm}

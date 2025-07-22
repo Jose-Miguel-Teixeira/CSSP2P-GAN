@@ -1,0 +1,6 @@
+# Resize:
+#   _target_: torchvision.transforms.v2.CenterCrop
+#   size: 512
+
+Identity:
+  _target_: torchvision.transforms.v2.Identity

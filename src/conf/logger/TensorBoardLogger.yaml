@@ -1,0 +1,6 @@
+_target_: pytorch_lightning.loggers.TensorBoardLogger
+_partial_: true
+name: ${general.experiment_group}/${general.experiment_name}
+log_graph: ${general.log_graph}
+default_hp_metric: false
+version: train

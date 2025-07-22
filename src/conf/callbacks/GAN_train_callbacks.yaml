@@ -1,0 +1,85 @@
+model_checkpoint_1:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  _partial_: true
+  monitor: generator_val_loss
+  mode: min
+  save_top_k: 1
+  save_last: true
+  save_weights_only: false
+  filename: "{generator_val_loss:.3e}_{epoch}"
+  verbose: ${general.verbose}
+
+# model_checkpoint_2:
+#   _target_: pytorch_lightning.callbacks.ModelCheckpoint
+#   _partial_: true
+#   monitor: fid_val
+#   mode: min
+#   save_top_k: 1
+#   save_last: false
+#   save_weights_only: true
+#   filename: "{fid_val:.3e}_{epoch}"
+#   verbose: ${general.verbose}
+
+# model_checkpoint_3:
+#   _target_: pytorch_lightning.callbacks.ModelCheckpoint
+#   _partial_: true
+#   monitor: kid_val
+#   mode: min
+#   save_top_k: 1
+#   save_last: false
+#   save_weights_only: true
+#   filename: "{kid_val:.3e}_{epoch}"
+#   verbose: ${general.verbose}
+
+model_checkpoint_4:
+  _target_: pytorch_lightning.callbacks.ModelCheckpoint
+  _partial_: true
+  monitor: lpips_val
+  mode: min
+  save_top_k: 1
+  save_last: false
+  save_weights_only: true
+  filename: "{lpips_val:.3e}_{epoch}"
+  verbose: ${general.verbose}
+
+# model_checkpoint_5:
+#   _target_: pytorch_lightning.callbacks.ModelCheckpoint
+#   _partial_: true
+#   monitor: msssim_val
+#   mode: max
+#   save_top_k: 1
+#   save_last: false
+#   save_weights_only: true
+#   filename: "{msssim_val:.3e}_{epoch}"
+#   verbose: ${general.verbose}
+
+# model_checkpoint_6:
+#   _target_: pytorch_lightning.callbacks.ModelCheckpoint
+#   _partial_: true
+#   monitor: ssim_val
+#   mode: max
+#   save_top_k: 1
+#   save_last: false
+#   save_weights_only: true
+#   filename: "{ssim_val:.3e}_{epoch}"
+#   verbose: ${general.verbose}
+
+# model_checkpoint_7:
+#   _target_: pytorch_lightning.callbacks.ModelCheckpoint
+#   _partial_: true
+#   monitor: psnr_val
+#   mode: max
+#   save_top_k: 1
+#   save_last: false
+#   save_weights_only: true
+#   filename: "{psnr_val:.3e}_{epoch}"
+#   verbose: ${general.verbose}
+
+# https://lightning.ai/docs/pytorch/stable/api/lightning.pytorch.callbacks.ModelCheckpoint.html
+
+learning_rate_monitor:
+  _target_: pytorch_lightning.callbacks.LearningRateMonitor
+  logging_interval: epoch
+
+# device_stats_monitor:
+#   _target_: pytorch_lightning.callbacks.DeviceStatsMonitor

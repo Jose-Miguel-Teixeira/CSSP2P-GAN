@@ -1,0 +1,2 @@
+Identity:
+  _target_: torchvision.transforms.v2.Identity
