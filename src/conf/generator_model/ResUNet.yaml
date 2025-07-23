@@ -6,8 +6,8 @@ final_activation: ${generator.final_activation}
 norm_layer: ${generator.norm_layer}
 use_bilinear: ${generator.use_bilinear}
 backbone: ${generator.backbone}
-attention_mechanism: ${generator.attention_mechanism}
-attention_layers: ${generator.attention_layers}
-use_learnable_positional_embeddings: ${generator.use_learnable_positional_embeddings}
-dropout: ${generator.dropout}
-attention_dropout: ${generator.attention_dropout}
+# attention_mechanism: ${generator.attention_mechanism}
+# attention_layers: ${generator.attention_layers}
+# use_learnable_positional_embeddings: ${generator.use_learnable_positional_embeddings}
+# dropout: ${generator.dropout}
+# attention_dropout: ${generator.attention_dropout}

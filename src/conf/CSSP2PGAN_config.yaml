@@ -77,21 +77,6 @@ train:
   start_training_generator_epoch: 0
   start_training_discriminator_epoch: 0
 
-  # Mask
-  Mask:
-    apply_mask: true
-
-    # Gaussian Smoothing
-    kernel_size: 9
-    sigma: 5.0
-
-    # Thresholding
-    blue_thresholds: [-1e-3]
-    blue_weights: [0.2]
-
-    brown_thresholds: [6e-2, 0.3]
-    brown_weights: [0.9, 0.1]  # Positive biomarker DAB staining
-
   # Metrics
   compute_metrics_on_gpu: true  # If cpu is setted, it will be computed on cpu
 
@@ -114,11 +99,6 @@ generator:
   norm_layer: instance
   use_bilinear: true
   backbone: resnet50
-  attention_mechanism: null
-  attention_layers: [0, 1]
-  use_learnable_positional_embeddings: false
-  dropout: 0.2
-  attention_dropout: 0.1
   compilation:
     enabled: true
     fullgraph: true

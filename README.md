@@ -47,9 +47,11 @@ unzip HER2match_tiles.zip -d HER2match_tiles
 - BCE GAN
 ```bash
 python3 train_gan.py \
-    --config-name BCEGAN_config.yaml
+    --config-name BCEGAN_config.yaml \
     ++discriminator.input_nc=3 \
-    ++train.condition_discriminator=false
+    ++train.condition_discriminator=false \
+    ++hydra.run.dir=outputs/BCEGAN/$(date +%Y_%m_%d_%H_%M_%S) \
+    ++general.experiment_name=BCEGAN_$(date +%Y_%m_%d_%H_%M_%S)
 ```
 
 - cBCE GAN

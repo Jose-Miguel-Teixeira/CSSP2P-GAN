@@ -1,29 +1,5 @@
-# * Validation configuration
-# ** Snellius
-# phase: validation  # [validation, test]
-# predictions_dir: /home/jteixeira/stAINs_MICCAI/outputs/NKI/GAN/2025_02_13_10_23_26_TEST_TRIAL_2/Trial_results/predictions
-# target_dir: /projects/prjs1316/NKI/HER2_tiled_v1/IHC/val
-# HE_dir: /projects/prjs1316/NKI/HER2_tiled_v1/HE/val
-# device: cuda
-
-# ** THEIA
 phase: val  # [train, validation, test]
-predictions_dir: /home/up202006243/stAINs_MICCAI/outputs/GAN/NKI/CSSP2PGAN/CSSP2PGAN/LPIPS_results/predictions
-target_dir: /data/temp/HER2_tiled_final/IHC/val
-HE_dir: /data/temp/HER2_tiled_final/HE/val
+predictions_dir: null
+target_dir: ../HER2match_tiles/IHC/val
+HE_dir: ../HER2match_tiles/HE/val
 device: cuda
-
-# ** CTM
-# phase: validation  # [validation, test]
-# predictions_dir:
-# target_dir:
-# HE_dir:
-# device: cuda
-
-
-# Test configuration
-# phase: test  # [validation, test]
-# predictions_dir: ...
-# target_dir: /nas-ctm01/datasets/public/HER2/Mist/all_IHC
-# HE_dir: /nas-ctm01/datasets/public/HER2/Mist/all_HE
-# device: cuda

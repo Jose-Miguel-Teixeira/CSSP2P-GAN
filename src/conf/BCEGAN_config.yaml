@@ -93,18 +93,13 @@ generator:
   norm_layer: instance
   use_bilinear: true
   backbone: resnet50
-  attention_mechanism: null
-  attention_layers: [0, 1]
-  use_learnable_positional_embeddings: false
-  dropout: 0.2
-  attention_dropout: 0.1
   compilation:
     enabled: true
     fullgraph: true
 
 general:
   experiment_group: Thesis
-  experiment_name: BCEGAN_${now:%Y_%m_%d_%H_%M_%S}
+  experiment_name: cBCEGAN_${now:%Y_%m_%d_%H_%M_%S}
   job_type: train
   log_graph: false
   num_example_images: 3
@@ -127,7 +122,4 @@ general:
 
 hydra:
   run:
-    dir: outputs/BCEGAN/${now:%Y_%m_%d_%H_%M_%S}
-  sweep:
-    dir: outputs/BCEGAN/
-    subdir: ${now:%Y_%m_%d_%H_%M_%S}
+    dir: outputs/cBCEGAN/${now:%Y_%m_%d_%H_%M_%S}
