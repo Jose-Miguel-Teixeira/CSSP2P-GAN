@@ -4,21 +4,20 @@ and Oliveira S. P., “Leveraging Adversarial Learning for Pathological Fidelity
 in Virtual Staining.” In Deep Generative Models: 5th MICCAI Workshop -
 DGM4MICCAI, 2025.
 
-For contact please use one of the following e-mail address:
+For contact, please use one of the following e-mail address:
 - joset4259@gmail.com
 - up202006243@up.pt
 
-## Requirements
-In this project we used python3.11 and a NVIDIA A100 GPU.
+## Requirements and Setup
+In this project, we used Python 3.11 and an NVIDIA A100-SXM4-40GB GPU.
 
-### Prepare Virtual Environment
-1. Clone Repository
+### Clone Repository
 ```bash
 # Clone Repository
 git clone https://github.com/Jose-Miguel-Teixeira/CSSP2P-GAN.git
 cd CSSP2P-GAN
 ```
-2. Prepare virtual environment
+### Prepare virtual environment
 
 **Option 1:** Virtual Environment using pip
 ```bash
