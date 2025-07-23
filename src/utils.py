@@ -280,13 +280,15 @@ class HED(nn.Module):
                 [[0.65, 0.70, 0.29],
                  [0.07, 0.99, 0.11],
                  [0.27, 0.57, 0.78]]
-            )
+            ),
+            persistent=False
         )
 
         # RGB to HED matrix
         self.register_buffer(
             'hed_from_rgb',
-            torch.linalg.inv(self.rgb_from_hed)
+            torch.linalg.inv(self.rgb_from_hed),
+            persistent=False
         )
 
     def rgb2hed(
@@ -381,7 +383,8 @@ class GaussianFilter(nn.Module):
         # Create the 2D Gaussian kernel
         self.register_buffer(
             'kernel',
-            self._create_gaussian_kernel_2d()
+            self._create_gaussian_kernel_2d(),
+            persistent=False
         )
 
     def _create_gaussian_kernel_2d(self):
