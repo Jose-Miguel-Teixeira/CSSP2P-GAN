@@ -39,7 +39,11 @@ class GaussianSmoothing(nn.Module):
         kernel = kernel.view(1, 1, *kernel.shape)
         kernel = kernel.repeat(channels, *([1] * (kernel.dim()-1)))
 
-        self.register_buffer('weight', kernel)
+        self.register_buffer(
+            'weight',
+            kernel,
+            persistent=False
+            )
         self.groups = channels
 
         # Compute padding to keep input dimensions unchanged ("same" convolution)

@@ -101,11 +101,13 @@ class Downsample(nn.Module):
 
         self.register_buffer(
             'filt_1d_vert',
-            filt_1d_vert.repeat(self.channels, 1, 1, 1)
+            filt_1d_vert.repeat(self.channels, 1, 1, 1),
+            persistent=False
             )
         self.register_buffer(
             'filt_1d_horiz',
-            filt_1d_horiz.repeat(self.channels, 1, 1, 1)
+            filt_1d_horiz.repeat(self.channels, 1, 1, 1),
+            persistent=False
             )
 
         self.pad = get_pad_layer(pad_type)(self.pad_sizes)

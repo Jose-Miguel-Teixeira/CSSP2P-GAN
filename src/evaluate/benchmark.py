@@ -16,7 +16,7 @@ from PIL import Image
 import warnings
 
 # Project Imports
-from metrics.image import VarianceLaplacian, CSS
+from metrics.image import CSS
 from metrics.pathology import HistogramDistance
 from utils import HED
 
@@ -49,10 +49,6 @@ METRICS = {
             reduction='mean',
             distance_function='jensenshannon',
         ),
-        'sharpness': VarianceLaplacian(
-            patch_size=16,
-            reduction='mean',
-        ),
     }
 
 
@@ -83,7 +79,6 @@ def calculate_metrics(
     msssim_list = []
     lpips_list = []
     jsd_list = []
-    sharpness_list = []
     css_list = []
 
     # Transform to convert PIL Image to Tensor
@@ -102,7 +97,7 @@ def calculate_metrics(
     with open(csv_file, 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(
-            ['Image', 'SSIM', 'PSNR', 'MSSSIM', 'LPIPS', 'JSD', 'Sharpness', 'CSS']
+            ['Image', 'SSIM', 'PSNR', 'MSSSIM', 'LPIPS', 'JSD', 'CSS']
             )
 
         for i in tqdm(fake_list):
@@ -148,8 +143,6 @@ def calculate_metrics(
             METRICS['lpips'].reset()
             jsd = METRICS['jsd'].compute().item()
             METRICS['jsd'].reset()
-            sharpness = METRICS['sharpness'].compute().item()
-            METRICS['sharpness'].reset()
             css = METRICS['css'].compute().item()
             METRICS['css'].reset()
 
@@ -158,11 +151,10 @@ def calculate_metrics(
             msssim_list.append(msssim)
             lpips_list.append(lpips)
             jsd_list.append(jsd)
-            sharpness_list.append(sharpness)
             css_list.append(css)
 
             writer.writerow(
-                [base_name, ssim, psnr, msssim, lpips, jsd, sharpness, css]
+                [base_name, ssim, psnr, msssim, lpips, jsd, css]
                 )
 
         ssim_mean = sum(ssim_list)/len(ssim_list)
@@ -175,13 +167,11 @@ def calculate_metrics(
         lpips_std = torch.std(torch.tensor(lpips_list)).item()
         jsd_mean = sum(jsd_list)/len(jsd_list)
         jsd_std = torch.std(torch.tensor(jsd_list)).item()
-        sharpness_mean = sum(sharpness_list)/len(sharpness_list)
-        sharpness_std = torch.std(torch.tensor(sharpness_list)).item()
         css_mean = sum(css_list)/len(css_list)
         css_std = torch.std(torch.tensor(css_list)).item()
 
-        writer.writerow(['Mean', ssim_mean, psnr_mean, msssim_mean, lpips_mean, jsd_mean, sharpness_mean, css_mean])
-        writer.writerow(['Std', ssim_std, psnr_std, msssim_std, lpips_std, jsd_std, sharpness_std, css_std])
+        writer.writerow(['Mean', ssim_mean, psnr_mean, msssim_mean, lpips_mean, jsd_mean, css_mean])
+        writer.writerow(['Std', ssim_std, psnr_std, msssim_std, lpips_std, jsd_std, css_std])
 
         fid = METRICS['fid'].compute().item()
         METRICS['fid'].reset()
@@ -196,7 +186,6 @@ def calculate_metrics(
     print(f"  MSSSIM: {msssim_mean} ± {msssim_std}")
     print(f"  LPIPS: {lpips_mean} ± {lpips_std}")
     print(f"  JSD: {jsd_mean} ± {jsd_std}")
-    print(f"  Sharpness: {sharpness_mean} ± {sharpness_std}")
     print(f"  CSS: {css_mean} ± {css_std}")
     print(f"  FID: {fid}")
     print(f"  KID: {kid_mean} ± {kid_std}")

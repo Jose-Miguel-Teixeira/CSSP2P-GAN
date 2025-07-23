@@ -7,10 +7,7 @@ from typing import Literal
 # Project Imports
 from module.GAN_base_module import HydraBCEGAN
 from criterion.image_loss import CSSLoss
-from utils import (
-    HED,
-    GaussianFilter,
-)
+from utils import GaussianFilter
 
 
 class HydraP2PGAN(HydraBCEGAN):
@@ -133,9 +130,6 @@ class HydraCSSP2PGAN(HydraBCEGAN):
         self.avg_css_loss: torch.Tensor = torch.tensor(float('inf'))
         self.avg_p2p_loss: torch.Tensor = torch.tensor(float('inf'))
 
-        # * Instantiate Color Space Conversion Functions
-        self.ToHED = HED()
-
     def generator_loss_fn(
             self,
             HE: torch.Tensor,
@@ -164,7 +158,6 @@ class HydraCSSP2PGAN(HydraBCEGAN):
         p2p_loss = self.loss_fn(
             input=IHC_hat,
             target=IHC,
-            # mask=self._generate_mask(IHC),
         )
 
         # ** Compute the Global Loss

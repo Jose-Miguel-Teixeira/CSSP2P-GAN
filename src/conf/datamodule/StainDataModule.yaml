@@ -1,7 +1,7 @@
 _target_: datamodule.stain_dataset.StainDataModule
 _partial_: true
-train_dataroot: ../HER2match_tiles/
-test_dataroot: ../HER2match_tiles/
+train_dataroot: /home/up202006243/CSSP2P-GAN/HER2match_tiles
+test_dataroot: /home/up202006243/CSSP2P-GAN/HER2match_tiles
 batch_size: ${train.batch_size}
 num_workers: ${train.num_workers}
 pin_memory: true
