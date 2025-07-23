@@ -59,7 +59,7 @@ train:
   weight_decay: 1e-5
 
   # Dataloader
-  batch_size: 4
+  batch_size: 8
   num_workers: 16
   prefetch_factor: 4
 
@@ -76,21 +76,6 @@ train:
   train_discriminator_every_n_epochs: 1
   start_training_generator_epoch: 0
   start_training_discriminator_epoch: 0
-
-  # Mask
-  Mask:
-    apply_mask: true
-
-    # Gaussian Smoothing
-    kernel_size: 9
-    sigma: 5.0
-
-    # Thresholding
-    blue_thresholds: [-1e-3]
-    blue_weights: [0.2]
-
-    brown_thresholds: [6e-2, 0.3]
-    brown_weights: [0.9, 0.1]  # Positive biomarker DAB staining
 
   # Metrics
   compute_metrics_on_gpu: true  # If cpu is setted, it will be computed on cpu

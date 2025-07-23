@@ -118,84 +118,9 @@ class HydraCSSP2PGAN(HydraBCEGAN):
             )
 
         loss_fn = hydra.utils.instantiate(cfg.criterion)
-        loss_fn = hydra.utils.instantiate(
+        self.loss_fn = hydra.utils.instantiate(
             wrapper_cfg,
             loss_fn=loss_fn,
-        )
-
-        # ** Masked Loss
-        # The loss function is wrapped with the MaskedLoss class.
-        # This class allows for additional weighting masks to be applied to
-        # both input and target.
-
-        self.loss_fn = MaskedLoss(loss_fn)
-
-        self.apply_mask = OmegaConf.select(
-            cfg.train.Mask,
-            'apply_mask',
-            default=True,
-        )
-
-        self.register_buffer(
-            'mask_brown_thresholds',
-            torch.tensor(
-                OmegaConf.select(
-                        cfg.train.Mask,
-                        'brown_thresholds',
-                        default=[6e-2, 0.3]
-                    )
-                ),
-            persistent=False
-        )
-
-        self.register_buffer(
-            'mask_blue_thresholds',
-            torch.tensor(
-                OmegaConf.select(
-                        cfg.train.Mask,
-                        'blue_thresholds',
-                        default=[-1e-3]
-                    )
-                ),
-            persistent=False
-        )
-
-        self.register_buffer(
-            'mask_brown_weights',
-            torch.tensor(
-                OmegaConf.select(
-                    cfg.train.Mask,
-                    'brown_weights',
-                    default=[0.9, 0.1]
-                )
-            ),
-            persistent=False
-        )
-
-        self.register_buffer(
-            'mask_blue_weights',
-            torch.tensor(
-                OmegaConf.select(
-                    cfg.train.Mask,
-                    'blue_weights',
-                    default=[0.05]
-                )
-            ),
-            persistent=False
-        )
-
-        self.gauss_filter = GaussianFilter(
-            kernel_size=OmegaConf.select(
-                cfg.train.Mask,
-                'kernel_size',
-                default=9
-            ),
-            sigma=OmegaConf.select(
-                cfg.train.Mask,
-                'sigma',
-                default=5.0
-            ),
-            channels=1
         )
 
         # * Loss Values
@@ -210,35 +135,6 @@ class HydraCSSP2PGAN(HydraBCEGAN):
 
         # * Instantiate Color Space Conversion Functions
         self.ToHED = HED()
-
-    @torch.no_grad()
-    def _generate_mask(self, x: torch.Tensor) -> torch.Tensor:
-        if self.apply_mask:
-            # Get the DAB Channel
-            DAB = self.ToHED(x)[:, 2, ...]  # [B, H, W]
-
-            DAB_mask = torch.zeros_like(
-                DAB.unsqueeze(1),
-                dtype=x.dtype,
-                device=x.device
-                )
-            for threshold, weight in zip(self.mask_brown_thresholds, self.mask_brown_weights):
-                DAB_mask += (DAB > threshold).to(x.dtype).unsqueeze(1) * weight # [B, 1, H, W]
-
-            for threshold, weight in zip(self.mask_blue_thresholds, self.mask_blue_weights):
-                DAB_mask += (DAB < threshold).to(x.dtype).unsqueeze(1) * weight # [B, 1, H, W]
-
-            DAB_mask = self.gauss_filter(DAB_mask)
-            DAB_mask = DAB_mask / DAB_mask.max()
-        else:
-            B, _, H, W = x.shape
-            DAB_mask = torch.ones(
-                size=(B, 1, H, W),
-                dtype=x.dtype,
-                device=x.device
-                )
-
-        return DAB_mask
 
     def generator_loss_fn(
             self,
@@ -268,7 +164,7 @@ class HydraCSSP2PGAN(HydraBCEGAN):
         p2p_loss = self.loss_fn(
             input=IHC_hat,
             target=IHC,
-            mask=self._generate_mask(IHC),
+            # mask=self._generate_mask(IHC),
         )
 
         # ** Compute the Global Loss
