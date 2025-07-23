@@ -1,9 +1,0 @@
-conf folder:
-- fix the datamodule configuration (path to dataset)
-- take the attention mechanism out of the generator
-- delete entity from wandb logger
-- delete masking from CSSP2PGAN
-
-networks folder:
-- take the attention mechanism out of the generator
-- delete masking from CSSP2PGAN
