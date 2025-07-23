@@ -82,7 +82,7 @@ python3 train_gan.py --config-name CSSP2PGAN_config.yaml
 >- To re-train [Pyramid Pix2Pix](https://github.com/bupt-ai-cz/BCI) and [ASP](https://github.com/lifangda01/AdaptiveSupervisedPatchNCE), please refer to their original code repository.
 
 ### Inference
-After training the models, you can predict and evaluate the quality of the virtual staining images using the following steps:
+After training the models, you can predict and evaluate the quality of the virtually stained images following these steps:
 1. Navigate to the evaluate directory:
 ```bash
 cd evaluate
