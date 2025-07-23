@@ -74,10 +74,52 @@ python3 train_gan.py --config-name CSSP2PGAN_config.yaml
 - If you want to use WandbLogger, please input your entity name on the configuration file `conf > logger > WandbLogger.yaml`
 - To re-train [Pyramid Pix2Pix](https://github.com/bupt-ai-cz/BCI) and [ASP](https://github.com/lifangda01/AdaptiveSupervisedPatchNCE), please refer to their original code repository.
 
-### Inference on Validation Set
+### Inference
+After training the models, you can predict and evaluate the quality of the virtual staining images using the following steps:
+1. Navigate to the evaluate directory:
+```bash
+cd evaluate
+```
+**Inference on the Validation Set**
+1. Predict on the Validation Set.
+```bash
+python3 predict_gan.py \
+    ++module=<model you want to evaluate> \  # Choose between [BCE GAN, P2P GAN, CSSP2P GAN]
+    ++train.resume_from_checkpoint=<path to checkpoint> \  # Path to the checkpoint of your model
+    ++discriminator_input_nc=6 \  # Use 3 if evaluating BCE GAN *without* H&E conditioning
+    ++train.condition_discriminator=true \  # Set to false if not conditioning the discriminator
+    ++hydra.run.dir=<path to model checkpoint> \  # Location path of your model
+    ++general.experiment_name=<name of your experiment>  # Optional: name of the experiment
+```
 
-### Inference on Test Set
+2. Run the metrics evaluation script.
+```bash
+python3 evaluate.py \
+    ++predictions_dir=<path to your predictions> \
+    ++phase=val \
+    ++HE_dir=../../HER2match_tiles/HE/val
+    ++target_dir=../../HER2match_tiles/IHC/val
+```
+**Inference on the Test Set**
+1. Predict on the Test Set
+```bash
+python3 test_gan.py \
+    ++module=<model you want to evaluate> \  # Choose between [BCE GAN, P2P GAN, CSSP2P GAN]
+    ++train.resume_from_checkpoint=<path to checkpoint> \  # Path to the checkpoint of your model
+    ++discriminator_input_nc=6 \  # Use 3 if evaluating BCE GAN *without* H&E conditioning
+    ++train.condition_discriminator=true \  # Set to false if not conditioning the discriminator
+    ++hydra.run.dir=<path to model checkpoint> \  # Location path of your model
+    ++general.experiment_name=<name of your experiment>  # Optional: name of the experiment
+```
 
+2. Run the metrics evaluation script.
+```bash
+python3 evaluate.py \
+    ++predictions_dir=<path to your predictions> \
+    ++phase=test \
+    ++HE_dir=../../HER2match_tiles/HE/test \
+    ++target_dir=../../HER2match_tiles/IHC/test
+```
 
 ## Citation
 If you use this code for your research, please cite our paper **Leveraging Adversarial Learning for Pathological Fidelity in Virtual Staining**:
