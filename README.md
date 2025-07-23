@@ -89,7 +89,7 @@ cd evaluate
 ```
 **Inference on the Validation Set**
 
-1. Predict on the Validation Set.
+2. Predict on the Validation Set.
 
 Before running `predict_gan.py`, modify the `conf/predict_gan.yaml` file by updating the following parameters:
 - `module`: `<model_name>`  
@@ -111,7 +111,7 @@ Before running `predict_gan.py`, modify the `conf/predict_gan.yaml` file by upda
 python3 predict_gan.py
 ```
 
-2. Run the metrics evaluation script.
+3. Run the metrics evaluation script.
 ```bash
 python3 evaluate.py \
     ++predictions_dir=<path to your predictions> \
@@ -121,7 +121,7 @@ python3 evaluate.py \
 ```
 
 **Inference on the Test Set**
-1. Predict on the Test Set.
+2. Predict on the Test Set.
 
 Before running `test_gan.py`, modify the `conf/test_gan.yaml` file by updating the following parameters:
 - `module`: `<model_name>`  
@@ -143,7 +143,7 @@ Before running `test_gan.py`, modify the `conf/test_gan.yaml` file by updating t
 python3 test_gan.py
 ```
 
-2. Run the metrics evaluation script.
+3. Run the metrics evaluation script.
 ```bash
 python3 evaluate.py \
     ++predictions_dir=<path to your predictions> \
