@@ -32,7 +32,7 @@ defaults:
   - datamodule: StainDataModule
 
   # Module
-  - module: CSSP2PGAN
+  - module: null
 
   # Transforms
   - HE_transforms: GAN_predict_transforms
@@ -48,11 +48,11 @@ defaults:
   - wrapper: PyramidLoss  # [PyramidLoss, PatchLoss, null]
 
   # Generator Loss
-  - criterion: L1Loss  # [MSELoss]
+  - criterion: L1Loss  # [MSELoss, L1Loss]
 
 train:
   # Resume from checkpoint
-  resume_from_checkpoint: /home/up202006243/stAINs_MICCAI/outputs/GAN/NKI/CSSP2PGAN/CSSP2PGAN/fid_val=3.012e+01_epoch=115.ckpt
+  resume_from_checkpoint: null
 
   # Optimizer
   lr: 5e-5
@@ -77,27 +77,6 @@ train:
   start_training_generator_epoch: 0
   start_training_discriminator_epoch: 0
 
-  # SoftAdapt
-  # SoftAdapt:
-  #   history_size: 7
-  #   beta: 0.1
-  #   variants: normalized_weighted_loss
-
-  # Mask
-  Mask:
-    apply_mask: false
-
-    # Gaussian Smoothing
-    kernel_size: 9
-    sigma: 5.0
-
-    # Thresholding
-    blue_thresholds: [-1e-3]
-    blue_weights: [0.05]
-
-    brown_thresholds: [6e-2, 0.3]
-    brown_weights: [0.9, 0.1]  # Positive biomarker DAB staining
-
   # Metrics
   compute_metrics_on_gpu: true  # If cpu is setted, it will be computed on cpu
 
@@ -120,18 +99,13 @@ generator:
   norm_layer: instance
   use_bilinear: true
   backbone: resnet50
-  attention_mechanism: null
-  attention_layers: [0, 1]
-  use_learnable_positional_embeddings: false
-  dropout: 0.2
-  attention_dropout: 0.1
   compilation:
     enabled: true
     fullgraph: true
 
 general:
   experiment_group: Thesis
-  experiment_name: BCEGAN
+  experiment_name: null
   job_type: val
   log_graph: false
   num_example_images: 3
@@ -141,7 +115,7 @@ general:
   deterministic: false
   benchmarking: true
   device: gpu
-  verbose: true
+  verbose: false
 
   # Debugging
   log_gradients: false
@@ -154,4 +128,4 @@ general:
 
 hydra:
   run:
-    dir: /home/up202006243/stAINs_MICCAI/outputs/GAN/NKI/CSSP2PGAN/CSSP2PGAN/LPIPS_results
+    dir: null
