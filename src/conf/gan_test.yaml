@@ -32,7 +32,7 @@ defaults:
   - datamodule: StainDataModule
 
   # Module
-  - module: CSSP2PGAN
+  - module: null
 
   # Transforms
   - HE_transforms: GAN_predict_transforms
@@ -47,11 +47,11 @@ defaults:
   - wrapper: PyramidLoss  # [PyramidLoss, PatchLoss, null]
 
   # Generator Loss
-  - criterion: MSELoss  # [MSELoss]
+  - criterion: MSELoss  # [MSELoss, L1Loss]
 
 train:
     # Resume from checkpoint
-    resume_from_checkpoint: /home/up202006243/stAINs_MICCAI/outputs/GAN/NKI/CSSP2PGAN/44/conditioned/2025_05_25_12_17_58/checkpoints/lpips_val=4.607e-01_epoch=193.ckpt
+    resume_from_checkpoint: null
 
     # Generator
     backbone: resnet50
@@ -79,21 +79,6 @@ train:
     start_training_generator_epoch: 0
     start_training_discriminator_epoch: 0
 
-    # Mask
-    Mask:
-      apply_mask: false
-
-      # Gaussian Smoothing
-      kernel_size: 9
-      sigma: 5.0
-
-      # Thresholding
-      blue_thresholds: [-1e-3]
-      blue_weights: [0.05]
-
-      brown_thresholds: [6e-2, 0.3]
-      brown_weights: [0.9, 0.1]  # Positive biomarker DAB staining
-
     # Metrics
     compute_metrics_on_gpu: true  # If cpu is setted, it will be computed on cpu
 
@@ -116,18 +101,13 @@ generator:
   norm_layer: instance
   use_bilinear: true
   backbone: resnet50
-  attention_mechanism: null
-  attention_layers: [0, 1]
-  use_learnable_positional_embeddings: false
-  dropout: 0.2
-  attention_dropout: 0.1
   compilation:
     enabled: true
     fullgraph: true
 
 general:
     experiment_group: Thesis
-    experiment_name: TEST
+    experiment_name: null
     job_type: test
     log_graph: false
     num_example_images: 0
@@ -146,11 +126,8 @@ general:
     num_sanity_val_steps: 0
     enable_model_summary: false
     profiler: null
-    max_dataset_size: 1000000
+    max_dataset_size: 100
 
 hydra:
   run:
-    dir: /home/up202006243/stAINs_MICCAI/outputs/GAN/NKI/CSSP2PGAN/44/conditioned/2025_05_25_12_17_58/LPIPS_results/
-  sweep:
-    dir: /home/up202006243/stAINs_MICCAI/outputs/GAN/NKI/CSSP2PGAN/44/conditioned/
-    subdir: /2025_05_25_12_17_58/LPIPS_results/
+    dir: null
