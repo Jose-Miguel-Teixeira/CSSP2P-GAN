@@ -83,10 +83,11 @@ python3 train_gan.py --config-name CSSP2PGAN_config.yaml
 
 ### Inference
 After training the models, you can predict and evaluate the quality of the virtually stained images following these steps:
-1. Navigate to the evaluate directory:
+1. Navigate to the `evaluate` directory:
 ```bash
 cd evaluate
 ```
+
 **Inference on the Validation Set**
 
 2. Predict on the Validation Set.
@@ -121,6 +122,7 @@ python3 evaluate.py \
 ```
 
 **Inference on the Test Set**
+
 2. Predict on the Test Set.
 
 Before running `test_gan.py`, modify the `conf/test_gan.yaml` file by updating the following parameters:
