@@ -50,6 +50,10 @@ unzip HER2match_tiles.zip -d HER2match_tiles
 - test_dataroot
 
 ## How to Run
+Navigate to the `src` directory.
+```bash
+cd src
+```
 ### Train Models
 - BCE GAN
 ```bash
