@@ -6,6 +6,10 @@ import torch
 from torchmetrics import Metric
 from typing import Literal
 import torch.nn.functional as F
+from typing import (
+    Tuple,
+    Optional
+    )
 
 # Project Imports
 from utils import (
@@ -16,10 +20,42 @@ from utils import (
 
 
 class HistogramDistance(Metric):
+    """
+    Histogram-based distance metric for pathology image distributions.
+
+    This metric compares predicted and target images by first converting each
+    sample in a batch into a normalized histogram, then computing a
+    per-sample distance between histogram pairs. Supported distances are
+    ``L1``, ``L2``, and Jensen-Shannon distance.
+
+    Histogram construction behavior:
+    - If ``range`` is provided, all samples use shared fixed bin edges.
+    - If ``range`` is None, each sample uses its own min/max range.
+    - Histograms are normalized to sum to 1 per sample.
+
+    Accumulation behavior:
+    - ``update`` accumulates the sum of per-sample distances.
+    - ``compute`` returns either the accumulated sum (``reduction='sum'``)
+      or the average distance per sample (``reduction='mean'``).
+
+    Args:
+        nbins (int): Number of histogram bins.
+        range (Optional[Tuple]): Fixed histogram value range
+            ``(min, max)``. If None, sample-wise min/max is used.
+        reduction (Literal['sum', 'mean']): Reduction applied in ``compute``.
+        distance_function (Literal['L1', 'L2', 'jensenshannon']): Distance
+            used between predicted and target histograms.
+        base (float): Logarithm base for Jensen-Shannon distance.
+        **kwargs: Additional keyword arguments forwarded to ``Metric``.
+
+    Raises:
+        ValueError: If ``range`` is invalid, ``reduction`` is unsupported,
+            or ``distance_function`` is unsupported.
+    """
     def __init__(
             self,
             nbins: int = 150,
-            range: tuple = None,
+            range: Optional[Tuple] = None,
             reduction: Literal['sum', 'mean'] = 'mean',
             distance_function: Literal[
                 'L1',
@@ -147,4 +183,3 @@ class HistogramDistance(Metric):
         if self.reduction == 'sum':
             return self.sum_distances
         return self.sum_distances / self.num_batches
-
