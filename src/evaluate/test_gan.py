@@ -18,10 +18,28 @@ from utils import (
 
 def run(cfg: DictConfig) -> None:
     """
-    Main function to run the training of the GAN.
+    Run GAN model evaluation on the test split from a saved checkpoint.
+
+    This routine instantiates callbacks, transforms, logger, accelerator,
+    trainer, module, and datamodule from the Hydra configuration, then
+    executes PyTorch Lightning testing via ``trainer.test``.
+
+    Side effects:
+    - Injects ``hydra.run.dir`` into the config after temporarily disabling
+      OmegaConf struct mode.
+    - Creates ``<run_dir>/logs`` when a logger is configured.
+    - Runs model evaluation and writes outputs through configured callbacks.
 
     Args:
-        cfg (DictConfig): Configuration object.
+        cfg (DictConfig): Hydra-composed test configuration. Expected
+            sections include ``general``, ``callbacks``, ``trainer``,
+            ``module``, ``datamodule``, and ``train.resume_from_checkpoint``.
+
+    Returns:
+        None.
+
+    Raises:
+        ValueError: If ``train.resume_from_checkpoint`` is not provided.
     """
 
     # Set the current working directory as the run directory
@@ -75,7 +93,7 @@ def run(cfg: DictConfig) -> None:
 
     if cfg.train.resume_from_checkpoint is None:
         raise ValueError(
-            "Provide a checkpoint to resume training from."
+            "Provide a checkpoint path for testing."
             )
 
     datamodule = hydra.utils.instantiate(cfg.datamodule)(
@@ -96,10 +114,15 @@ def run(cfg: DictConfig) -> None:
         )
 def main(cfg: DictConfig) -> None:
     """
-    Main function to run the training of the GAN.
+    Hydra entrypoint for GAN testing.
+
+    This function executes ``run`` and reports total wall-clock runtime.
 
     Args:
-        cfg (DictConfig): Configuration object.
+        cfg (DictConfig): Hydra-composed test configuration.
+
+    Returns:
+        None.
     """
     tic = time()
     run(cfg)
