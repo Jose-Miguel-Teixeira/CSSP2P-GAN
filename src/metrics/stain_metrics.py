@@ -1,7 +1,13 @@
 import torch
 from torchmetrics import Metric
-from typing import Tuple, Dict, List
 import warnings
+from typing import (
+    Tuple,
+    Dict,
+    List,
+    Optional,
+    )
+
 
 # * Metrics
 from torchmetrics.image.lpip import LearnedPerceptualImagePatchSimilarity
@@ -48,12 +54,48 @@ def is_image_in_range(
 
 
 class StainMetrics(Metric):
+    """
+    Composite metric wrapper for image-to-image stain translation tasks.
+
+    The class manages a configurable collection of torchmetrics image metrics
+    and exposes a unified ``update`` / ``compute`` / ``reset`` interface.
+    Supported metric names are:
+    - ``psnr``
+    - ``ssim``
+    - ``msssim``
+    - ``fid``
+    - ``kid``
+    - ``lpips``
+
+    During ``update``, predicted images are optionally normalized to
+    ``target_range`` when they are outside that range. This normalization uses
+    ``input_range`` and is required for consistent metric computation
+    when model outputs are produced in a different scale.
+
+    Args:
+        input_range (Optional[Tuple[int, int]]): Value range of ``y_pred``
+            before normalization. Required only when predictions may fall
+            outside ``target_range``.
+        target_range (Tuple[int, int]): Expected intensity range used for
+            range-sensitive metrics and normalization output.
+        compute_on_cpu (bool): If True, compute metric state updates on CPU.
+        metrics (Optional[List[str]]): Subset of metrics to compute. If None,
+            all available metrics are enabled.
+        **kwargs: Optional metric-specific settings:
+            - ``kid_subset_size`` (int)
+            - ``kid_subsets`` (int)
+            - ``lpips_net_type`` (str)
+
+    Raises:
+        ValueError: If ``target_range`` is invalid or requested
+            metric names are unsupported.
+    """
     def __init__(
             self,
-            input_range: Tuple[int, int] = None,
+            input_range: Optional[Tuple[int, int]] = None,
             target_range: Tuple[int, int] = (0, 1),
             compute_on_cpu: bool = False,
-            metrics: List[str] = None,
+            metrics: Optional[List[str]] = None,
             **kwargs
             ) -> None:
         super().__init__()
