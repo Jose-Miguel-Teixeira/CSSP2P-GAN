@@ -59,6 +59,33 @@ def calculate_metrics(
     results_dir: str,
     device: str = 'cuda',
         ) -> None:
+    """
+    Compute image quality metrics for generated IHC images and save results.
+
+    The function iterates over generated images in ``fake_dir`` and matches
+    them by filename with corresponding real IHC images (``real_dir``) and
+    HE images (``he_dir``). For each image triplet, it computes per-image
+    metrics (SSIM, PSNR, MSSSIM, LPIPS, JSD, CSS), writes per-image rows to a
+    CSV file, then writes dataset-level summary statistics (mean/std) and
+    distribution metrics (FID, KID).
+
+    Notes:
+    - ``JSD`` is computed on the DAB channel obtained through HED conversion.
+    - ``CSS`` is computed between fake IHC and HE images.
+    - If ``device='cuda'`` but CUDA is unavailable, computation falls back to
+      CPU with a warning.
+
+    Args:
+        real_dir (str): Directory containing real/reference IHC images.
+        fake_dir (str): Directory containing generated IHC images to evaluate.
+        he_dir (str): Directory containing corresponding HE images.
+        results_dir (str): Output directory where ``metrics.csv`` is written.
+        device (str): Target device for metric computation (for example,
+            ``'cuda'`` or ``'cpu'``).
+
+    Returns:
+        None: Results are written to disk and printed to stdout.
+    """
 
     global METRICS
 
