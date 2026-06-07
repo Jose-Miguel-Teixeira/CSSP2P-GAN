@@ -18,32 +18,32 @@ from utils import (
 
 def run(cfg: DictConfig) -> None:
     """
-        Run batch prediction for a GAN model using a saved checkpoint.
+    Run batch prediction for a GAN model using a saved checkpoint.
 
-        This routine builds callbacks, transforms, accelerator settings,
-        trainer, model module, and datamodule from the Hydra
-        configuration, then executes PyTorch Lightning prediction via
-        ``trainer.predict``.
+    This routine builds callbacks, transforms, accelerator settings,
+    trainer, model module, and datamodule from the Hydra
+    configuration, then executes PyTorch Lightning prediction via
+    ``trainer.predict``.
 
-        Side effects:
-        - Injects ``hydra.run.dir`` into the config after temporarily disabling
-            OmegaConf struct mode.
-        - Runs model inference and writes outputs through configured prediction
-            callbacks.
+    Side effects:
+    - Injects ``hydra.run.dir`` into the config after temporarily
+      disabling OmegaConf struct mode.
+    - Runs model inference and writes outputs through configured
+      prediction callbacks.
 
     Args:
-                cfg (DictConfig): Hydra-composed prediction configuration.
-                    Expected sections include ``general``, ``callbacks``,
-                    ``trainer``, ``module``, ``datamodule``, and
-                    ``train.resume_from_checkpoint``.
+        cfg (DictConfig): Hydra-composed prediction configuration.
+            Expected sections include ``general``, ``callbacks``,
+            ``trainer``, ``module``, ``datamodule``, and
+            ``train.resume_from_checkpoint``.
 
-        Returns:
-                None: Predictions are handled by Lightning callbacks,
-                    not returned.
+    Returns:
+        None: Predictions are handled by Lightning callbacks,
+            not returned.
 
-        Raises:
-                ValueError: If ``train.resume_from_checkpoint`` is
-                    not provided.
+    Raises:
+        ValueError: If ``train.resume_from_checkpoint`` is
+            not provided.
     """
 
     # Set the current working directory as the run directory
@@ -88,7 +88,7 @@ def run(cfg: DictConfig) -> None:
 
     if cfg.train.resume_from_checkpoint is None:
         raise ValueError(
-            "Provide a checkpoint to resume training from."
+            "Provide a checkpoint path for prediction."
             )
 
     datamodule = hydra.utils.instantiate(cfg.datamodule)(
