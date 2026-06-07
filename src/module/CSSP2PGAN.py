@@ -1,16 +1,34 @@
 import torch
 import hydra
 from omegaconf import DictConfig, OmegaConf
-from monai.losses import MaskedLoss
 from typing import Literal
 
 # Project Imports
 from module.GAN_base_module import HydraBCEGAN
 from criterion.image_loss import CSSLoss
-from utils import GaussianFilter
 
 
 class HydraP2PGAN(HydraBCEGAN):
+    """
+    Conditional GAN module with adversarial plus pixel-to-pixel pyramid loss.
+
+    This module extends ``HydraBCEGAN`` by adding a reconstruction objective
+    implemented through a Hydra-instantiated ``PyramidLoss`` wrapper around the
+    configured base criterion. The generator objective is:
+
+    ``L_G = L_adv + L_p2p``
+
+    During training, per-step adversarial and p2p losses are accumulated and
+    averaged at epoch end for logging.
+
+    Args:
+        cfg (DictConfig): Hydra configuration containing at least
+            ``criterion`` and ``wrapper`` entries. The wrapper target must be
+            ``PyramidLoss``.
+
+    Raises:
+        ValueError: If the configured wrapper is not ``PyramidLoss``.
+    """
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg)
 
@@ -100,6 +118,27 @@ class HydraP2PGAN(HydraBCEGAN):
 
 
 class HydraCSSP2PGAN(HydraBCEGAN):
+    """
+    Conditional GAN module with adversarial, CSS, and pyramid p2p losses.
+
+    This module extends ``HydraBCEGAN`` by combining three generator-loss
+    components:
+
+    ``L_G = L_adv + L_css + L_p2p``
+
+    where ``L_css`` is computed by ``CSSLoss`` and ``L_p2p`` is a
+    Hydra-instantiated ``PyramidLoss`` wrapper around the configured criterion.
+    During training, per-step loss terms are accumulated and epoch means are
+    logged separately.
+
+    Args:
+        cfg (DictConfig): Hydra configuration containing at least
+            ``criterion`` and ``wrapper`` entries. The wrapper target must be
+            ``PyramidLoss``.
+
+    Raises:
+        ValueError: If the configured wrapper is not ``PyramidLoss``.
+    """
     def __init__(self, cfg: DictConfig) -> None:
         super().__init__(cfg)
 
