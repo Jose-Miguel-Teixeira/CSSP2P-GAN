@@ -126,6 +126,43 @@ def _css_update(
 
 
 class CSS(Metric):
+    """
+    Contrast Similarity Score (CSS) metric for image quality assessment.
+
+    CSS compares local contrast statistics between predicted and target
+    images, similar in spirit to SSIM contrast terms. It supports both
+    2D and 3D tensors and can use either Gaussian smoothing windows or
+    uniform averaging windows.
+
+    Expected input shapes follow torchmetrics SSIM conventions:
+    - 2D images: ``(N, C, H, W)``
+    - 3D volumes: ``(N, C, D, H, W)``
+
+    Reduction behavior:
+    - ``elementwise_mean``: mean CSS over samples seen across updates.
+    - ``sum``: sum of per-sample CSS values across updates.
+    - ``none`` or ``None``: returns concatenated per-sample CSS values.
+
+    Args:
+        gaussian_kernel (bool): If True, use Gaussian filtering windows.
+            If False, use uniform windows.
+        sigma (Union[float, Sequence[float]]): Standard deviation(s) for
+            Gaussian kernel generation.
+        kernel_size (Union[int, Sequence[int]]): Window size(s) used by
+            the metric.
+        data_range (Optional[Union[float, tuple[float, float]]]): Value
+            range of the input. If None, estimated from ``preds`` and
+            ``target`` during update.
+        k (float): Stability constant factor used in the CSS denominator.
+        reduction (Literal["elementwise_mean", "sum", "none", None]):
+            Reduction strategy used in ``compute``.
+        **kwargs (Any): Additional keyword arguments forwarded to
+            ``torchmetrics.Metric``.
+
+    Raises:
+        ValueError: If ``reduction`` or ``kernel_size`` configuration is
+            invalid.
+    """
 
     higher_is_better: bool = True
     is_differentiable: bool = True
@@ -182,7 +219,7 @@ class CSS(Metric):
             self,
             preds: torch.Tensor,
             target: torch.Tensor
-            ) -> torch.Tensor:
+            ) -> None:
         preds, target = _ssim_check_inputs(preds, target)
         similarity = _css_update(
             preds,
