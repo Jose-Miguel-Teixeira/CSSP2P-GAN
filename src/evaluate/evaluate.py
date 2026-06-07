@@ -2,9 +2,6 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import glob
-import pandas as pd
-from PIL import Image, ImageDraw, ImageFont
 from omegaconf import DictConfig
 import hydra
 
@@ -18,6 +15,21 @@ from benchmark import calculate_metrics
     version_base=None,
 )
 def main(cfg: DictConfig) -> None:
+    """
+    Hydra entrypoint for benchmark evaluation of generated images.
+
+    This function delegates metric computation to ``calculate_metrics`` using
+    paths from ``evaluate_config.yaml`` and writes results into a
+    phase-specific ``metrics`` directory under the predictions root.
+
+    Args:
+        cfg (DictConfig): Hydra-composed evaluation configuration containing
+            ``predictions_dir``, ``target_dir``, ``HE_dir``, ``phase``, and
+            ``device``.
+
+    Returns:
+        None.
+    """
     calculate_metrics(
         fake_dir=cfg.predictions_dir,
         real_dir=cfg.target_dir,
