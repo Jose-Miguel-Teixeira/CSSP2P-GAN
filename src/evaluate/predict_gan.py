@@ -18,10 +18,32 @@ from utils import (
 
 def run(cfg: DictConfig) -> None:
     """
-    Main function to run the training of the GAN.
+        Run batch prediction for a GAN model using a saved checkpoint.
+
+        This routine builds callbacks, transforms, accelerator settings,
+        trainer, model module, and datamodule from the Hydra
+        configuration, then executes PyTorch Lightning prediction via
+        ``trainer.predict``.
+
+        Side effects:
+        - Injects ``hydra.run.dir`` into the config after temporarily disabling
+            OmegaConf struct mode.
+        - Runs model inference and writes outputs through configured prediction
+            callbacks.
 
     Args:
-        cfg (DictConfig): Configuration object.
+                cfg (DictConfig): Hydra-composed prediction configuration.
+                    Expected sections include ``general``, ``callbacks``,
+                    ``trainer``, ``module``, ``datamodule``, and
+                    ``train.resume_from_checkpoint``.
+
+        Returns:
+                None: Predictions are handled by Lightning callbacks,
+                    not returned.
+
+        Raises:
+                ValueError: If ``train.resume_from_checkpoint`` is
+                    not provided.
     """
 
     # Set the current working directory as the run directory
@@ -88,10 +110,15 @@ def run(cfg: DictConfig) -> None:
         )
 def main(cfg: DictConfig) -> None:
     """
-    Main function to run the training of the GAN.
+    Hydra entrypoint for GAN prediction.
+
+    This function executes ``run`` and reports total wall-clock runtime.
 
     Args:
-        cfg (DictConfig): Configuration object.
+        cfg (DictConfig): Hydra-composed prediction configuration.
+
+    Returns:
+        None.
     """
     tic = time()
     run(cfg)
