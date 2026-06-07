@@ -15,7 +15,7 @@ from utils import (
     )
 
 
-def run(cfg: DictConfig) -> float:
+def run(cfg: DictConfig) -> float | None:
     """
     Execute one GAN training run from a Hydra/OmegaConf configuration.
 
@@ -37,7 +37,7 @@ def run(cfg: DictConfig) -> float:
             ``module``, ``datamodule``, and ``train``.
 
     Returns:
-        torch.Tensor | None: Best monitored checkpoint score when
+        float | None: Best monitored checkpoint score when
             ``sweep_metric`` is configured and matched by a
             ``ModelCheckpoint`` callback; otherwise ``None``.
 
@@ -135,14 +135,14 @@ def run(cfg: DictConfig) -> float:
         )
 
     if sweep_metric is not None:
-        device = module.device
         checkpoint_callbacks = [
             cb for cb in callbacks if isinstance(cb, ModelCheckpoint)
         ]
         for cb in checkpoint_callbacks:
-            if sweep_metric in cb.monitor:
+            monitor = cb.monitor
+            if isinstance(monitor, str) and sweep_metric == monitor:
                 if cb.best_model_score is not None:
-                    return cb.best_model_score.to(device)
+                    return float(cb.best_model_score.detach().cpu().item())
 
     return None
 
@@ -152,7 +152,7 @@ def run(cfg: DictConfig) -> float:
         config_name='gan_config.yaml',
         version_base=None
         )
-def main(cfg: DictConfig) -> None:
+def main(cfg: DictConfig) -> float | None:
     """
     Hydra entrypoint for GAN training.
 
@@ -164,7 +164,8 @@ def main(cfg: DictConfig) -> None:
         cfg (DictConfig): Hydra-composed configuration for the current run.
 
     Returns:
-        None: Value is not consumed by Hydra.
+        float | None: Best score returned by ``run`` when a matching
+            sweep metric is found; otherwise ``None``.
     """
     tic = time()
     print(f"Current configuration: {cfg}")
