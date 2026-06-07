@@ -450,6 +450,34 @@ class ResNetDecoder(nn.Module):
 
 
 class ResUNet(nn.Module):
+    """
+    Residual U-Net for dense image-to-image prediction.
+
+    This architecture combines a pretrained ResNet encoder with a
+    U-Net-like decoder and skip connections. The encoder extracts
+    multiscale representations, and the decoder progressively upsamples
+    and fuses them to produce a pixel-aligned output.
+
+    Args:
+        input_size (Tuple): Spatial input size as ``(height, width)``.
+            Height and width must be equal.
+        output_channels (int): Number of channels in the final output map.
+        final_activation (Literal['sigmoid', 'tanh', 'none']): Activation
+            applied after the decoder head.
+        encoder_activation (Literal['relu', 'leaky_relu', 'elu']):
+            Nonlinearity used throughout the encoder blocks.
+        norm_layer (Literal['batch', 'instance']): Normalization type used in
+            encoder and decoder.
+        use_bilinear (bool): If True, decoder upsampling uses bilinear
+            interpolation. Otherwise, transposed convolutions are used.
+        backbone (Literal['resnet18', 'resnet34', 'resnet50', 'resnet101']):
+            ResNet variant used for the encoder.
+        **kwargs: Additional arguments forwarded to ResNetDecoder.
+
+    Raises:
+        ValueError: If input_size is not square, backbone is invalid,
+            or final activation is invalid.
+    """
     def __init__(
             self,
             input_size: Tuple,
