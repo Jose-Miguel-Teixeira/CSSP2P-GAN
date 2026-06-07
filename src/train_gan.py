@@ -17,10 +17,35 @@ from utils import (
 
 def run(cfg: DictConfig) -> float:
     """
-    Main function to run the training of the GAN.
+    Execute one GAN training run from a Hydra/OmegaConf configuration.
+
+    This routine prepares callbacks, transforms, augmentations, logger,
+    accelerator, trainer, module, and datamodule from the provided config,
+    then launches ``trainer.fit``. It also supports optional resume-from-
+    checkpoint behavior and closes the active Weights & Biases run.
+
+    Side effects:
+    - Injects ``hydra.run.dir`` into the config after temporarily disabling
+      OmegaConf struct mode.
+    - Creates ``<run_dir>/logs`` when a logger is configured.
+    - Starts model training via PyTorch Lightning.
+    - Calls ``wandb.finish()`` at the end of training.
 
     Args:
-        cfg (DictConfig): Configuration object.
+        cfg (DictConfig): Full experiment configuration. Expected sections
+            include at least ``general``, ``callbacks``, ``trainer``,
+            ``module``, ``datamodule``, and ``train``.
+
+    Returns:
+        torch.Tensor | None: Best monitored checkpoint score when
+            ``sweep_metric`` is configured and matched by a
+            ``ModelCheckpoint`` callback; otherwise ``None``.
+
+    Raises:
+        FileNotFoundError: If ``train.resume_from_checkpoint`` is set but the
+            file does not exist.
+        ValueError: If ``train.resume_from_checkpoint`` is set to a file that
+            does not end with ``.ckpt``.
     """
 
     # Set the current working directory as the run directory
@@ -116,7 +141,8 @@ def run(cfg: DictConfig) -> float:
         ]
         for cb in checkpoint_callbacks:
             if sweep_metric in cb.monitor:
-                return cb.best_model_score.to(device)
+                if cb.best_model_score is not None:
+                    return cb.best_model_score.to(device)
 
     return None
 
@@ -128,10 +154,17 @@ def run(cfg: DictConfig) -> float:
         )
 def main(cfg: DictConfig) -> None:
     """
-    Main function to run the training of the GAN.
+    Hydra entrypoint for GAN training.
+
+    This function prints the active configuration, delegates execution to
+    ``run``, and reports the best model score, run directory, and elapsed
+    wall-clock time.
 
     Args:
-        cfg (DictConfig): Configuration object.
+        cfg (DictConfig): Hydra-composed configuration for the current run.
+
+    Returns:
+        None: Value is not consumed by Hydra.
     """
     tic = time()
     print(f"Current configuration: {cfg}")
