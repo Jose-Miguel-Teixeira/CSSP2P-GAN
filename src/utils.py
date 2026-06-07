@@ -27,20 +27,43 @@ def setup(
         verbose: bool = True,
 ) -> str:
     """
-    Configures the PyTorch environment with the given settings.
+    Configure reproducibility and backend/runtime behavior for training.
+
+    This function sets global random seeds and PyTorch defaults, resolves the
+    requested device into an actual accelerator, and optionally enables cuDNN
+    benchmarking when running on CUDA.
+
+    Device resolution behavior:
+    - ``device='cpu'``: always uses CPU.
+    - ``device='gpu'`` on macOS: uses MPS when available, otherwise falls back
+      to CPU and emits a warning.
+    - ``device='gpu'`` on Linux/Windows: uses CUDA when available, otherwise
+      raises a ValueError.
+
+    Side effects:
+    - Sets seeds for torch, NumPy, and Python ``random``.
+    - Sets environment variable ``PL_GLOBAL_SEED``.
+    - Sets global torch defaults for dtype, deterministic algorithms, and
+      float32 matmul precision.
 
     Args:
         seed (int): Random seed for reproducibility.
         dtype (torch.dtype): Default data type for tensors.
-        matmul_precision (Literal): Precision level for matrix multiplications.
-        deterministic (bool): Whether to enforce deterministic computations.
-        benchmarking (bool): If True, enables benchmarking for performance.
-        device (str): Target accelerator (e.g., 'gpu', 'cpu').
+        matmul_precision (Literal['medium', 'high', 'highest']): Precision
+            level for float32 matrix multiplications.
+        deterministic (bool): If True, enforces deterministic PyTorch
+            algorithms where supported.
+        benchmarking (bool): If True, enables cuDNN benchmarking for
+            performance when CUDA is used.
+        device (Literal['cpu', 'gpu']): Requested execution device.
         verbose (bool): Whether to print configuration details.
-        mixed_precision (bool): Enable mixed precision training.
 
     Returns:
-        str: The name of the chosen accelerator ('cpu', 'cuda', or 'mps').
+        str: Resolved accelerator name ('cpu', 'cuda', or 'mps').
+
+    Raises:
+        ValueError: If ``device`` is invalid or CUDA is requested but not
+            available on Linux/Windows.
     """
 
     # Seed everything for reproducibility
