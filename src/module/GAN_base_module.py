@@ -276,7 +276,7 @@ class HydraBCEGAN(pl.LightningModule):
         preds: torch.Tensor,
         real: bool,
         phase: Literal['train', 'val', 'test'],
-        threshold: int = 0.5,
+        threshold: float = 0.5,
             ) -> None:
 
         match phase:
@@ -420,6 +420,7 @@ class HydraBCEGAN(pl.LightningModule):
         if isinstance(self.adversarial_loss, nn.MSELoss):
             disc_preds = normalize_logits_if_needed(tensor=disc_preds, normalization='sigmoid')
 
+        # Maximize the probability of generated images being classified as real
         adversarial_loss = self.adversarial_loss(
             disc_preds,
             torch.ones_like(disc_preds)
@@ -1586,4 +1587,3 @@ class HydraBCEGAN(pl.LightningModule):
                         on_step=False,
                         sync_dist=True
                         )
-
