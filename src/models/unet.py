@@ -19,7 +19,6 @@ from typing import (
 #     BasicBlock,
 #     Bottleneck,
 # )
-# from attention import CrossAttentionBlock
 from models.resnet import (
     ResNet,
     BasicBlock,
@@ -149,6 +148,31 @@ class OutConvBlock(nn.Module):
 
 
 class ResNetEncoder(nn.Module):
+    """
+    ResNet-based feature encoder for the ResUNet architecture.
+
+    This module builds a configurable ResNet backbone (18/34/50/101), replaces
+    ReLU activations with the requested activation type, and optionally loads
+    torchvision pretrained weights. The first convolution stride is set to
+    ``(1, 1)`` to preserve more spatial detail for dense prediction tasks.
+
+    The forward pass returns the deepest feature map together with four skip
+    connection tensors used by the decoder.
+
+    Args:
+        pretrained (bool): If True, initialize from torchvision pretrained
+            weights when available.
+        norm_layer (Literal['batch', 'instance']): Normalization type used in
+            the encoder blocks.
+        activation (Literal['relu', 'leaky_relu', 'elu']): Activation
+            function used to replace default ReLU modules.
+        backbone (Literal['resnet18', 'resnet34', 'resnet50', 'resnet101']):
+            ResNet variant used as encoder backbone.
+
+    Raises:
+        ValueError: If an invalid normalization layer, activation, or backbone
+            name is provided.
+    """
 
     def __init__(
             self,
@@ -343,12 +367,36 @@ class ResNetEncoder(nn.Module):
 
 
 class ResNetDecoder(nn.Module):
+    """
+    Decoder block for ResUNet with skip-connection fusion.
+
+    This decoder progressively upsamples encoder features and fuses them with
+    transformed skip connections from the encoder path. Each stage applies a
+    1x1 projection to the skip tensor followed by an up-convolution fusion
+    block, and ends with a final 1x1 output convolution.
+
+    Args:
+        input_size (Tuple): Spatial input size used by the full model.
+        output_channels (int): Number of channels in the final output map.
+        hidden_sizes (List[int]): Channel sizes used across decoder stages.
+        backbone (Literal['resnet18', 'resnet34', 'resnet50', 'resnet101']):
+            Encoder backbone name, used to select channel projections at the
+            last skip-fusion stage.
+        norm_layer (Literal['batch', 'instance']): Normalization type used in
+            decoder fusion blocks.
+        use_bilinear (bool): If True, uses bilinear upsampling in
+            UpconvBlock. Otherwise uses transposed convolution.
+        **kwargs: Reserved for compatibility with parent model constructors.
+
+    Raises:
+        ValueError: If an invalid normalization layer is provided.
+    """
     def __init__(
             self,
             input_size: Tuple,
             output_channels: int,
             hidden_sizes: List[int],
-            backbone: Literal["resnet34", "resnet50", "resnet101"],
+            backbone: Literal["resnet18", "resnet34", "resnet50", "resnet101"],
             norm_layer: Literal['batch', 'instance'] = 'batch',
             use_bilinear: bool = True,
             **kwargs
